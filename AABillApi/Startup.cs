@@ -14,6 +14,7 @@ namespace AABillApi
 {
     public class Startup
     {
+        readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -23,6 +24,15 @@ namespace AABillApi
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                                  builder =>
+                                  {
+                                      builder.AllowAnyOrigin().WithMethods("GET", "POST", "HEAD", "PUT", "DELETE", "OPTIONS");
+                                  });
+            });
+
             #region MongoDb
 
             services.Configure<BillsDatabaseSettings>(
@@ -77,6 +87,8 @@ namespace AABillApi
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(MyAllowSpecificOrigins);
 
             app.UseAuthorization();
 

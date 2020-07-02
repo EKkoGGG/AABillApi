@@ -1,8 +1,9 @@
 ﻿using AABillApi.Models;
 using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Threading.Tasks;
 
 namespace AABillApi.Services
 {
@@ -18,9 +19,32 @@ namespace AABillApi.Services
             _billss = database.GetCollection<Bills>(settings.BillsCollectionName);
         }
 
-        public string FindIdbyRoomId(int roomId)
+        async public Task<CreatRoomDTO> GetNewRoomId()
         {
-            return _billss.Find<Bills>(bills => bills.RoomId == roomId).First().Id;
+            CreatRoomDTO creatRoom = new CreatRoomDTO();
+            Random random = new Random();
+            int roomId = 0;
+            while (true)
+            {
+                roomId = random.Next(100000, 999999);
+                var id = await FindIdbyRoomId(roomId);
+                if (string.IsNullOrEmpty(id))
+                {
+                    creatRoom.RoomId = roomId;
+                    creatRoom.RoomPwd = 1234;
+                    break;
+                }
+            }
+            return creatRoom;
+        }
+        async public Task<string> FindIdbyRoomId(int roomId)
+        {
+            var bill = await _billss.Find(bills => bills.RoomId == roomId).FirstOrDefaultAsync();
+            if (bill == null)
+            {
+                return "";
+            }
+            return bill.Id;
         }
 
         public List<Bills> Get() =>
@@ -29,14 +53,15 @@ namespace AABillApi.Services
         public Bills Get(string id) =>
             _billss.Find<Bills>(bills => bills.Id == id).FirstOrDefault();
 
-        public Bills Create(Bills bills)
+        async public void Create(Bills bills)
         {
-            _billss.InsertOne(bills);
-            return bills;
+           await  _billss.InsertOneAsync(bills);
         }
 
-        public void Update(string id, Bills billsIn) =>
-            _billss.ReplaceOne(bills => bills.Id == id, billsIn);
+        async public void Update(string id, Bills billsIn)
+        {
+           await  _billss.ReplaceOneAsync(bills => bills.Id == id, billsIn);
+        }
 
         public void Remove(Bills billsIn) =>
             _billss.DeleteOne(bills => bills.Id == billsIn.Id);
