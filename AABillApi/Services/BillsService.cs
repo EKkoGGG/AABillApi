@@ -50,8 +50,8 @@ namespace AABillApi.Services
         public List<Bills> Get() =>
             _billss.Find(bills => true).ToList();
 
-        public Bills Get(string id) =>
-            _billss.Find<Bills>(bills => bills.Id == id).FirstOrDefault();
+        async public Task<Bills> Get(string id) =>
+            await _billss.Find<Bills>(bills => bills.Id == id).FirstOrDefaultAsync();
 
         async public void Create(Bills bills)
         {

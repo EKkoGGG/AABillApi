@@ -21,6 +21,13 @@ namespace AABillApi.Controllers
             this._authService = authService;
         }
 
+        [HttpGet,Route("{roomId}")]
+        async public Task<Bills> GetBill(int roomId)
+        {
+            var id = await _billsService.FindIdbyRoomId(roomId);
+            return await _billsService.Get(id);
+        }
+
         [AllowAnonymous]
         [HttpPost,Route("NewRoom")]
         async public Task<Bills> PostNewRoom(CreatRoomDTO request)

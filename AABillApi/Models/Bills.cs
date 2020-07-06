@@ -33,7 +33,7 @@ namespace AABillApi.Models
         public int PayerId { get; set; }
 
         [BsonElement("payerName")]
-        public double PayerName { get; set; }
+        public string PayerName { get; set; }
 
     }
 
