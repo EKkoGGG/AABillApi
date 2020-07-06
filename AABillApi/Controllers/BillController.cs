@@ -23,7 +23,7 @@ namespace AABillApi.Controllers
 
         [AllowAnonymous]
         [HttpPost,Route("NewRoom")]
-        async public Task<Bills> PostNewRoom([FromForm] CreatRoomDTO request)
+        async public Task<Bills> PostNewRoom(CreatRoomDTO request)
         {
             Bills bills = new Bills();
             bills.Id = await _billsService.FindIdbyRoomId(request.RoomId);
