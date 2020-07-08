@@ -12,57 +12,68 @@ namespace AABillApi.Controllers
     [ApiController]
     public class BillController : ControllerBase
     {
-        private readonly BillsService _billsService;
+        private readonly BillService _billService;
         private readonly IAuthenticateService _authService;
 
-        public BillController(BillsService billsService, IAuthenticateService authService)
+        public BillController(BillService billService, IAuthenticateService authService)
         {
-            this._billsService = billsService;
+            this._billService = billService;
             this._authService = authService;
+        }
+
+        [HttpPost,Route("{roomId}/PayerInfo")]
+        async public Task<ActionResult> CreatPayer(int roomId, [FromQuery] string payerName)
+        {
+            var res = await _billService.CreatPayer(roomId, payerName);
+            if (res == false)
+            {
+                return BadRequest();
+            }
+            return Ok();
         }
 
         [HttpPatch, Route("{roomId}/PayerInfo/{payerId}")]
         public void EditPayer(int roomId, int payerId, [FromQuery] string payerName)
         {
-            _billsService.EditPayer(roomId, payerId, payerName);
+            _billService.EditPayer(roomId, payerId, payerName);
         }
 
         [HttpDelete, Route("{roomId}/PayerInfo/{payerId}")]
         public void DelPayer(int roomId, int payerId)
         {
-            _billsService.DelPayer(roomId, payerId);
+            _billService.DelPayer(roomId, payerId);
         }
 
         [HttpGet, Route("{roomId}")]
-        async public Task<Bills> GetBill(int roomId)
+        async public Task<Bill> GetBill(int roomId)
         {
-            var id = await _billsService.FindIdbyRoomId(roomId);
-            return await _billsService.Get(id);
+            var id = await _billService.FindIdbyRoomId(roomId);
+            return await _billService.Get(id);
         }
 
         [AllowAnonymous]
         [HttpPost, Route("NewRoom")]
-        async public Task<Bills> PostNewRoom(CreatRoomDTO request)
+        async public Task<Bill> PostNewRoom(CreatRoomDTO request)
         {
-            Bills bills = new Bills();
-            bills.Id = await _billsService.FindIdbyRoomId(request.RoomId);
-            bills.RoomId = request.RoomId;
-            bills.RoomPwd = request.RoomPwd;
-            bills.RoomTitle = "new room";
-            bills.BillInfo = new List<BillInfo>();
-            _billsService.Update(bills.Id, bills);
-            return bills;
+            Bill bill = new Bill();
+            bill.Id = await _billService.FindIdbyRoomId(request.RoomId);
+            bill.RoomId = request.RoomId;
+            bill.RoomPwd = request.RoomPwd;
+            bill.RoomTitle = "new room";
+            bill.BillInfo = new List<BillInfo>();
+            _billService.Update(bill.Id, bill);
+            return bill;
         }
 
         [AllowAnonymous]
         [HttpGet, Route("NewRoom")]
         async public Task<CreatRoomDTO> GetNewRoom()
         {
-            var cr = await _billsService.GetNewRoomId();
-            Bills bills = new Bills();
-            bills.RoomId = cr.RoomId;
-            bills.RoomPwd = cr.RoomPwd;
-            _billsService.Create(bills);
+            var cr = await _billService.GetNewRoomId();
+            Bill bill = new Bill();
+            bill.RoomId = cr.RoomId;
+            bill.RoomPwd = cr.RoomPwd;
+            _billService.Create(bill);
             return cr;
         }
     }

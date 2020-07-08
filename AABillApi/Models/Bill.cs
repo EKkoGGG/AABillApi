@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace AABillApi.Models
 {
    
-    public class Bills
+    public class Bill
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

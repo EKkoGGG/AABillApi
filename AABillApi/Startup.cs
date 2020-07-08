@@ -41,7 +41,7 @@ namespace AABillApi
             services.AddSingleton<IBillsDatabaseSettings>(sp =>
                 sp.GetRequiredService<IOptions<BillsDatabaseSettings>>().Value);
 
-            services.AddSingleton<BillsService>();
+            services.AddSingleton<BillService>();
 
             #endregion
 
