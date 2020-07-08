@@ -1,4 +1,5 @@
 ﻿using AABillApi.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,19 @@ namespace AABillApi.Services
             _billss = database.GetCollection<Bills>(settings.BillsCollectionName);
         }
 
+        async public void EditPayer(int roomId, int payerId,string payerName)
+        {
+            var filter = Builders<Bills>.Filter.Where(b => b.RoomId == roomId) 
+            & Builders<Bills>.Filter.Where(p => p.PayerInfo.Any(pd => pd.PayerId == payerId));
+            var update = Builders<Bills>.Update.Set(p => p.PayerInfo[-1].PayerName, payerName);
+            await _billss.UpdateOneAsync(filter, update);
+        }
+
+        async public void DelPayer(int roomId, int payerId)
+        {
+            var update = Builders<Bills>.Update.PullFilter(bills => bills.PayerInfo, p => p.PayerId == payerId);
+            await _billss.UpdateOneAsync<Bills>(bills => bills.RoomId == roomId, update);
+        }
         async public Task<CreatRoomDTO> GetNewRoomId()
         {
             CreatRoomDTO creatRoom = new CreatRoomDTO();
@@ -55,12 +69,12 @@ namespace AABillApi.Services
 
         async public void Create(Bills bills)
         {
-           await  _billss.InsertOneAsync(bills);
+            await _billss.InsertOneAsync(bills);
         }
 
         async public void Update(string id, Bills billsIn)
         {
-           await  _billss.ReplaceOneAsync(bills => bills.Id == id, billsIn);
+            await _billss.ReplaceOneAsync(bills => bills.Id == id, billsIn);
         }
 
         public void Remove(Bills billsIn) =>

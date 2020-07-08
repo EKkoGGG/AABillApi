@@ -21,7 +21,19 @@ namespace AABillApi.Controllers
             this._authService = authService;
         }
 
-        [HttpGet,Route("{roomId}")]
+        [HttpPatch, Route("{roomId}/PayerInfo/{payerId}")]
+        public void EditPayer(int roomId, int payerId, [FromQuery] string payerName)
+        {
+            _billsService.EditPayer(roomId, payerId, payerName);
+        }
+
+        [HttpDelete, Route("{roomId}/PayerInfo/{payerId}")]
+        public void DelPayer(int roomId, int payerId)
+        {
+            _billsService.DelPayer(roomId, payerId);
+        }
+
+        [HttpGet, Route("{roomId}")]
         async public Task<Bills> GetBill(int roomId)
         {
             var id = await _billsService.FindIdbyRoomId(roomId);
@@ -29,7 +41,7 @@ namespace AABillApi.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost,Route("NewRoom")]
+        [HttpPost, Route("NewRoom")]
         async public Task<Bills> PostNewRoom(CreatRoomDTO request)
         {
             Bills bills = new Bills();
