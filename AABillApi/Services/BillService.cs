@@ -20,6 +20,17 @@ namespace AABillApi.Services
             _bills = database.GetCollection<Bill>(settings.BillsCollectionName);
         }
 
+        async public void DelBillInfoByIndex(int roomId, int index)
+        {
+            //var update = Builders<Bill>.Update.PullFilter(b =>b.BillInfo,);
+            //await _bills.UpdateOneAsync<Bill>(bill => bill.RoomId == roomId, update);
+        }
+        async public void CreatBillInfo(int roomId, BillInfo billInfo)
+        {
+            var update = Builders<Bill>.Update.Push(b => b.BillInfo, billInfo);
+            await _bills.UpdateOneAsync(b => b.RoomId == roomId, update);
+        }
+
         async public Task<bool> CreatPayer(int roomId, string payerName)
         {
             var bill = await Get(roomId);
@@ -42,9 +53,9 @@ namespace AABillApi.Services
             return true;
         }
 
-        async public void EditPayer(int roomId, int payerId,string payerName)
+        async public void EditPayer(int roomId, int payerId, string payerName)
         {
-            var filter = Builders<Bill>.Filter.Where(b => b.RoomId == roomId) 
+            var filter = Builders<Bill>.Filter.Where(b => b.RoomId == roomId)
             & Builders<Bill>.Filter.Where(p => p.PayerInfo.Any(pd => pd.PayerId == payerId));
             var update = Builders<Bill>.Update.Set(p => p.PayerInfo[-1].PayerName, payerName);
             await _bills.UpdateOneAsync(filter, update);
@@ -75,7 +86,7 @@ namespace AABillApi.Services
         }
         async public Task<string> FindIdbyRoomId(int roomId)
         {
-            var bill = await _bills.Find(bill => bill.RoomId == roomId).FirstOrDefaultAsync();
+            var bill = await _bills.Find(b => b.RoomId == roomId).FirstOrDefaultAsync();
             if (bill == null)
             {
                 return "";

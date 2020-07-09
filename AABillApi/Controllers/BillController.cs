@@ -21,6 +21,13 @@ namespace AABillApi.Controllers
             this._authService = authService;
         }
 
+        [HttpPost,Route("{roomId}/BillInfo")]
+        public ActionResult CreatBillInfo(int roomId,BillInfo billInfo)
+        {
+            _billService.CreatBillInfo(roomId,billInfo);
+            return Ok();
+        }
+
         [HttpPost,Route("{roomId}/PayerInfo")]
         async public Task<ActionResult> CreatPayer(int roomId, [FromQuery] string payerName)
         {

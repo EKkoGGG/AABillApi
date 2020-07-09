@@ -39,6 +39,9 @@ namespace AABillApi.Models
 
     public class BillInfo
     {
+        [BsonElement("billInfoId")]
+        public int BillInfoId { get; set; }
+
         [BsonElement("payerId")]
         public int PayerId { get; set; }
 
