@@ -21,6 +21,12 @@ namespace AABillApi.Controllers
             this._authService = authService;
         }
 
+        [HttpDelete, Route("{roomId}/BillInfo/{billInfoId}")]
+        public void DelBillInfo(int roomId,int billInfoId)
+        {
+            _billService.DelBillInfo(roomId, billInfoId);
+        }
+
         [HttpPost,Route("{roomId}/BillInfo")]
         public ActionResult CreatBillInfo(int roomId,BillInfo billInfo)
         {

@@ -20,13 +20,24 @@ namespace AABillApi.Services
             _bills = database.GetCollection<Bill>(settings.BillsCollectionName);
         }
 
-        async public void DelBillInfoByIndex(int roomId, int index)
+        async public void DelBillInfo(int roomId, int billInfoId)
         {
-            //var update = Builders<Bill>.Update.PullFilter(b =>b.BillInfo,);
-            //await _bills.UpdateOneAsync<Bill>(bill => bill.RoomId == roomId, update);
+            var update = Builders<Bill>.Update.PullFilter(b => b.BillInfo,bi=>bi.BillInfoId == billInfoId);
+            await _bills.UpdateOneAsync<Bill>(bill => bill.RoomId == roomId, update);
         }
         async public void CreatBillInfo(int roomId, BillInfo billInfo)
         {
+            var bill = await Get(roomId);
+            int billInfoId = 0;
+            foreach (var item in bill.BillInfo)
+            {
+                if (item.BillInfoId > billInfoId)
+                {
+                    billInfoId = item.BillInfoId;
+                }
+            }
+            billInfoId++;
+            billInfo.BillInfoId = billInfoId;
             var update = Builders<Bill>.Update.Push(b => b.BillInfo, billInfo);
             await _bills.UpdateOneAsync(b => b.RoomId == roomId, update);
         }
@@ -65,6 +76,14 @@ namespace AABillApi.Services
         {
             var update = Builders<Bill>.Update.PullFilter(bill => bill.PayerInfo, p => p.PayerId == payerId);
             await _bills.UpdateOneAsync<Bill>(bill => bill.RoomId == roomId, update);
+
+            var updateBillInfo = Builders<Bill>.Update.PullFilter(bill => bill.BillInfo, p => p.PayerId == payerId);
+            await _bills.UpdateOneAsync<Bill>(bill => bill.RoomId == roomId, updateBillInfo);
+
+            var filter = Builders<Bill>.Filter.Where(b => b.RoomId == roomId)
+            & Builders<Bill>.Filter.Where(p => p.BillInfo.Any(pd => pd.PayerIds.Contains(payerId)));
+            var updateC = Builders<Bill>.Update.PullFilter(b => b.BillInfo,p=>p.PayerIds.Contains(payerId));
+            await _bills.UpdateOneAsync(filter, updateC);
         }
         async public Task<CreatRoomDTO> GetNewRoomId()
         {
