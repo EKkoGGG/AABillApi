@@ -45,6 +45,12 @@ namespace AABillApi.Controllers
             return Ok();
         }
 
+        [HttpPatch, Route("{roomId}/BillInfo/{billInfoId}")]
+        public void EditBillInfo(int roomId, int billInfoId, BillInfo billInfo)
+        {
+            _billService.EditBillInfo(roomId, billInfoId, billInfo);
+        }
+
         [HttpPatch, Route("{roomId}/PayerInfo/{payerId}")]
         public void EditPayer(int roomId, int payerId, [FromQuery] string payerName)
         {

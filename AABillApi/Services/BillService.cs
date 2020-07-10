@@ -64,6 +64,14 @@ namespace AABillApi.Services
             return true;
         }
 
+        async public void EditBillInfo(int roomId, int billInfoId, BillInfo billInfo)
+        {
+            var filter = Builders<Bill>.Filter.Where(b => b.RoomId == roomId)
+            & Builders<Bill>.Filter.Where(p => p.BillInfo.Any(pd => pd.BillInfoId == billInfoId));
+            var update = Builders<Bill>.Update.Set(b => b.BillInfo[-1], billInfo);
+            await _bills.UpdateOneAsync(filter, update);
+        }
+
         async public void EditPayer(int roomId, int payerId, string payerName)
         {
             var filter = Builders<Bill>.Filter.Where(b => b.RoomId == roomId)
