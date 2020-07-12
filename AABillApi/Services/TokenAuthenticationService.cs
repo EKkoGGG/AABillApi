@@ -15,7 +15,7 @@ namespace AABillApi.Services
         {
             _tokenManagement = tokenManagement;
         }
-        public bool IsAuthenticated(CreatRoomDTO request, out string token)
+        public void IsAuthenticated(CreatRoomDTO request, out string token)
         {
             token = string.Empty;
             var claims = new[]
@@ -26,12 +26,11 @@ namespace AABillApi.Services
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var jwtToken = new JwtSecurityToken(_tokenManagement.Issuer, _tokenManagement.Audience, claims, expires: DateTime.Now.AddMinutes(_tokenManagement.AccessExpiration), signingCredentials: credentials);
             token = new JwtSecurityTokenHandler().WriteToken(jwtToken);
-            return true;
         }
     }
 
     public interface IAuthenticateService
     {
-        bool IsAuthenticated(CreatRoomDTO request, out string token);
+        void IsAuthenticated(CreatRoomDTO request, out string token);
     }
 }

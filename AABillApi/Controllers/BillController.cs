@@ -10,6 +10,7 @@ namespace AABillApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class BillController : ControllerBase
     {
         private readonly BillService _billService;
@@ -70,7 +71,6 @@ namespace AABillApi.Controllers
             return await _billService.Get(id);
         }
 
-        [AllowAnonymous]
         [HttpPost, Route("NewRoom")]
         async public Task<Bill> PostNewRoom(CreatRoomDTO request)
         {
@@ -88,11 +88,14 @@ namespace AABillApi.Controllers
         [HttpGet, Route("NewRoom")]
         async public Task<CreatRoomDTO> GetNewRoom()
         {
+            string token;
             var cr = await _billService.GetNewRoomId();
             Bill bill = new Bill();
             bill.RoomId = cr.RoomId;
             bill.RoomPwd = cr.RoomPwd;
             _billService.Create(bill);
+            _authService.IsAuthenticated(cr, out token);
+            cr.Token = token;
             return cr;
         }
     }

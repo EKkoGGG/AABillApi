@@ -86,6 +86,8 @@ namespace AABillApi
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
+
             app.UseRouting();
 
             app.UseCors(MyAllowSpecificOrigins);

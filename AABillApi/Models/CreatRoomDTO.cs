@@ -12,5 +12,7 @@ namespace AABillApi.Models
         [Required]
         [FromForm(Name = "roomPwd")]
         public int RoomPwd { get; set; }
+
+        public string Token { get; set; }
     }
 }
