@@ -10,7 +10,7 @@ namespace AABillApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "User")]
     public class BillController : ControllerBase
     {
         private readonly BillService _billService;

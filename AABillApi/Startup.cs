@@ -9,6 +9,9 @@ using Microsoft.Extensions.Options;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using System.Reflection;
 
 namespace AABillApi
 {
@@ -54,6 +57,7 @@ namespace AABillApi
                sp.GetRequiredService<IOptions<TokenManagement>>().Value);
             var token = Configuration.GetSection("tokenManagement").Get<TokenManagement>();
 
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -72,6 +76,14 @@ namespace AABillApi
                     ValidateAudience = false
                 };
             });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("User", policy =>
+                    policy.Requirements.Add(new AccountRequirement("User")
+                    ));
+                //options.AddPolicy("User", policy => policy.RequireClaim("User"));
+            });
+            services.AddSingleton<IAuthorizationHandler, CheckTokenRoomIdService>();
             services.AddScoped<IAuthenticateService, TokenAuthenticationService>();
 
             #endregion
