@@ -71,6 +71,13 @@ namespace AABillApi.Controllers
             return await _billService.Get(id);
         }
 
+        [HttpPost, Route("{roomId}")]
+        async public Task<Bill> LoginBillRoom(int roomId,CreatRoomDTO request)
+        {
+            var id = await _billService.FindIdbyRoomId(roomId);
+            return await _billService.Get(id);
+        }
+
         [HttpPost, Route("NewRoom")]
         async public Task<Bill> PostNewRoom(CreatRoomDTO request)
         {

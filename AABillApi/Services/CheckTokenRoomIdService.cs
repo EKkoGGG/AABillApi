@@ -7,16 +7,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using AABillApi.Models;
+using System.Threading;
 
 namespace AABillApi.Services
 {
     public class AccountRequirement : IAuthorizationRequirement
     {
-        public readonly string RoleName;
-        public AccountRequirement(string roleName)
-        {
-            RoleName = roleName;
-        }
     }
     public class CheckTokenRoomIdService : AuthorizationHandler<AccountRequirement>
     {
@@ -25,11 +21,12 @@ namespace AABillApi.Services
         {
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
-        protected override Task HandleRequirementAsync(
+        async protected override Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
         AccountRequirement requirement)
         {
             var httpContext = _httpContextAccessor;
+            httpContext.HttpContext.Request.EnableBuffering();
             string authHeader = httpContext.HttpContext.Request.Headers["Authorization"];
             string tokenStr = authHeader.Replace("Bearer ", "");
             var handler = new JwtSecurityTokenHandler();
@@ -37,17 +34,25 @@ namespace AABillApi.Services
             var claims = payload.Claims;
             var roomId = claims.First(claim => claim.Type == "roomId").Value;
             var body = httpContext.HttpContext.Request.Body;
-            using (var reader = new StreamReader(body))
+            var reader = new StreamReader(body);
+            var bodyStr = await reader.ReadToEndAsync();
+            body.Position = 0;
+            string roomIdByBody = string.Empty;
+            if (string.IsNullOrEmpty(bodyStr))
             {
-                //var bodyStr = await reader.ReadToEndAsync();
-                //var roomIdByBody = JsonConvert.DeserializeObject<CreatRoomDTO>(bodyStr).RoomId.ToString();
-                //if (roomId == roomIdByBody)
-                //{
-                    //context.Succeed(requirement);
-                //}
+                roomIdByBody = httpContext.HttpContext.Request.RouteValues.Values.ToList()[2].ToString();
             }
-
-            return Task.CompletedTask;
+            else
+            {
+                roomIdByBody = JsonConvert.DeserializeObject<CreatRoomDTO>(bodyStr).RoomId.ToString();
+            }
+            if (roomId != roomIdByBody)
+            {
+                context.Fail();
+                return;
+            }
+            context.Succeed(requirement);
+            return;
         }
     }
 }

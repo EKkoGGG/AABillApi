@@ -20,8 +20,8 @@ namespace AABillApi.Services
             token = string.Empty;
             var claims = new[]
             {
-                new Claim("roomId",request.RoomId.ToString()),
-                new Claim("User", "User1"),
+                new Claim("roomId",request.RoomId.ToString())
+                // new Claim("User", "User"),
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenManagement.Secret));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
