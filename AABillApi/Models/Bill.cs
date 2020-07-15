@@ -25,6 +25,8 @@ namespace AABillApi.Models
 
         [BsonElement("payerInfo")]
         public List<PayerInfo> PayerInfo { get; set; }
+
+        public string Token { get; set; }
     }
 
     public class PayerInfo

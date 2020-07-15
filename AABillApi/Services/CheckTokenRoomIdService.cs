@@ -38,7 +38,7 @@ namespace AABillApi.Services
             var bodyStr = await reader.ReadToEndAsync();
             body.Position = 0;
             string roomIdByBody = string.Empty;
-            if (string.IsNullOrEmpty(bodyStr))
+            if (string.IsNullOrEmpty(bodyStr) || !bodyStr.Contains("roomId"))
             {
                 roomIdByBody = httpContext.HttpContext.Request.RouteValues.Values.ToList()[2].ToString();
             }

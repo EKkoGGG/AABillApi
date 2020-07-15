@@ -20,6 +20,18 @@ namespace AABillApi.Services
             _bills = database.GetCollection<Bill>(settings.BillsCollectionName);
         }
 
+        async public Task<bool> LoginBillRoom(int roomId, CreatRoomDTO request)
+        {
+            bool res = false;
+            var bill = await Get(roomId);
+            var pwd = bill.RoomPwd;
+            if (pwd == request.RoomPwd)
+            {
+                return true;
+            }
+            return res;
+        }
+
         async public void DelBillInfo(int roomId, int billInfoId)
         {
             var update = Builders<Bill>.Update.PullFilter(b => b.BillInfo,bi=>bi.BillInfoId == billInfoId);

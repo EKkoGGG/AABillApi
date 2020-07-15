@@ -71,11 +71,23 @@ namespace AABillApi.Controllers
             return await _billService.Get(id);
         }
 
+        [AllowAnonymous]
         [HttpPost, Route("{roomId}")]
-        async public Task<Bill> LoginBillRoom(int roomId,CreatRoomDTO request)
+        async public Task<ActionResult<Bill>> LoginBillRoom(int roomId,CreatRoomDTO request)
         {
-            var id = await _billService.FindIdbyRoomId(roomId);
-            return await _billService.Get(id);
+            string token;
+            var flag = await _billService.LoginBillRoom(roomId, request);
+            if (flag)
+            {
+                _authService.IsAuthenticated(request, out token);
+                var bill = await _billService.Get(roomId);
+                bill.Token = token;
+                return bill;
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         [HttpPost, Route("NewRoom")]
@@ -87,6 +99,7 @@ namespace AABillApi.Controllers
             bill.RoomPwd = request.RoomPwd;
             bill.RoomTitle = "new room";
             bill.BillInfo = new List<BillInfo>();
+            bill.PayerInfo = new List<PayerInfo>();
             _billService.Update(bill.Id, bill);
             return bill;
         }
