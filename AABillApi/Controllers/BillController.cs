@@ -58,6 +58,12 @@ namespace AABillApi.Controllers
             _billService.EditPayer(roomId, payerId, payerName);
         }
 
+        [HttpPatch, Route("{roomId}")]
+        public void EditRoomTitle(int roomId,[FromQuery] string roomTitle)
+        {
+            _billService.EditRoomTitle(roomId, roomTitle);
+        }
+
         [HttpDelete, Route("{roomId}/PayerInfo/{payerId}")]
         public void DelPayer(int roomId, int payerId)
         {

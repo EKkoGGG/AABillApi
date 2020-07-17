@@ -81,7 +81,6 @@ namespace AABillApi
                 options.AddPolicy("User", policy =>
                     policy.Requirements.Add(new AccountRequirement()
                     ));
-                // options.AddPolicy("User", policy => policy.RequireClaim("User"));
             });
             services.AddSingleton<IAuthorizationHandler, CheckTokenRoomIdService>();
             services.AddScoped<IAuthenticateService, TokenAuthenticationService>();

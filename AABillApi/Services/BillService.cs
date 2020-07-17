@@ -34,7 +34,7 @@ namespace AABillApi.Services
 
         async public void DelBillInfo(int roomId, int billInfoId)
         {
-            var update = Builders<Bill>.Update.PullFilter(b => b.BillInfo,bi=>bi.BillInfoId == billInfoId);
+            var update = Builders<Bill>.Update.PullFilter(b => b.BillInfo, bi => bi.BillInfoId == billInfoId);
             await _bills.UpdateOneAsync<Bill>(bill => bill.RoomId == roomId, update);
         }
         async public void CreatBillInfo(int roomId, BillInfo billInfo)
@@ -92,6 +92,13 @@ namespace AABillApi.Services
             await _bills.UpdateOneAsync(filter, update);
         }
 
+        async public void EditRoomTitle(int roomId, string roomTitle)
+        {
+            var filter = Builders<Bill>.Filter.Where(b => b.RoomId == roomId);
+            var update = Builders<Bill>.Update.Set(p => p.RoomTitle, roomTitle);
+            await _bills.UpdateOneAsync(filter, update);
+        }
+
         async public void DelPayer(int roomId, int payerId)
         {
             var update = Builders<Bill>.Update.PullFilter(bill => bill.PayerInfo, p => p.PayerId == payerId);
@@ -102,7 +109,7 @@ namespace AABillApi.Services
 
             var filter = Builders<Bill>.Filter.Where(b => b.RoomId == roomId)
             & Builders<Bill>.Filter.Where(p => p.BillInfo.Any(pd => pd.PayerIds.Contains(payerId)));
-            var updateC = Builders<Bill>.Update.PullFilter(b => b.BillInfo,p=>p.PayerIds.Contains(payerId));
+            var updateC = Builders<Bill>.Update.PullFilter(b => b.BillInfo, p => p.PayerIds.Contains(payerId));
             await _bills.UpdateOneAsync(filter, updateC);
         }
         async public Task<CreatRoomDTO> GetNewRoomId()
