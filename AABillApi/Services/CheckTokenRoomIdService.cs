@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using AABillApi.Models;
-using System.Threading;
 
 namespace AABillApi.Services
 {

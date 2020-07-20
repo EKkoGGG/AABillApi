@@ -3,7 +3,6 @@ using AABillApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using MongoDB.Bson;
 using System.Threading.Tasks;
 
 namespace AABillApi.Controllers
@@ -29,21 +28,20 @@ namespace AABillApi.Controllers
         }
 
         [HttpPost,Route("{roomId}/BillInfo")]
-        public ActionResult CreatBillInfo(int roomId,BillInfo billInfo)
+        public void CreatBillInfo(int roomId,BillInfo billInfo)
         {
             _billService.CreatBillInfo(roomId,billInfo);
-            return Ok();
         }
 
         [HttpPost,Route("{roomId}/PayerInfo")]
-        async public Task<ActionResult> CreatPayer(int roomId, [FromQuery] string payerName)
+        async public Task<ActionResult<BillResult>> CreatPayer(int roomId, [FromQuery] string payerName)
         {
             var res = await _billService.CreatPayer(roomId, payerName);
             if (res == false)
             {
-                return BadRequest();
+                return NotFound(new BillResult(StatusCodes.Code404));
             }
-            return Ok();
+            return Ok(new BillResult(StatusCodes.Code200));
         }
 
         [HttpPatch, Route("{roomId}/BillInfo/{billInfoId}")]
@@ -71,15 +69,16 @@ namespace AABillApi.Controllers
         }
 
         [HttpGet, Route("{roomId}")]
-        async public Task<Bill> GetBill(int roomId)
+        async public Task<ActionResult<BillResult>> GetBill(int roomId)
         {
             var id = await _billService.FindIdbyRoomId(roomId);
-            return await _billService.Get(id);
+            var bill = await _billService.Get(id);
+            return Ok(new BillResult(StatusCodes.Code200, bill));
         }
 
         [AllowAnonymous]
         [HttpPost, Route("{roomId}")]
-        async public Task<ActionResult<Bill>> LoginBillRoom(int roomId,CreatRoomDTO request)
+        async public Task<ActionResult<BillResult>> LoginBillRoom(int roomId,CreatRoomDTO request)
         {
             string token;
             var flag = await _billService.LoginBillRoom(roomId, request);
@@ -88,16 +87,16 @@ namespace AABillApi.Controllers
                 _authService.IsAuthenticated(request, out token);
                 var bill = await _billService.Get(roomId);
                 bill.Token = token;
-                return bill;
+                return Ok(new BillResult(StatusCodes.Code200, bill));
             }
             else
             {
-                return NotFound();
+                return NotFound(StatusCodes.Code404);
             }
         }
 
         [HttpPost, Route("NewRoom")]
-        async public Task<Bill> PostNewRoom(CreatRoomDTO request)
+        async public Task<ActionResult<BillResult>> PostNewRoom(CreatRoomDTO request)
         {
             Bill bill = new Bill();
             bill.Id = await _billService.FindIdbyRoomId(request.RoomId);
@@ -107,12 +106,12 @@ namespace AABillApi.Controllers
             bill.BillInfo = new List<BillInfo>();
             bill.PayerInfo = new List<PayerInfo>();
             _billService.Update(bill.Id, bill);
-            return bill;
+            return Ok(new BillResult(StatusCodes.Code200, bill));
         }
 
         [AllowAnonymous]
         [HttpGet, Route("NewRoom")]
-        async public Task<CreatRoomDTO> GetNewRoom()
+        async public Task<ActionResult<BillResult>> GetNewRoom()
         {
             string token;
             var cr = await _billService.GetNewRoomId();
@@ -122,7 +121,7 @@ namespace AABillApi.Controllers
             _billService.Create(bill);
             _authService.IsAuthenticated(cr, out token);
             cr.Token = token;
-            return cr;
+            return Ok(new BillResult(StatusCodes.Code200,cr));
         }
     }
 }
